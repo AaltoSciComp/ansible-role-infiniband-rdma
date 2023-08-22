@@ -1,0 +1,21 @@
+---
+# default rdma packages to install
+rdma_packages:
+  - infiniband-diags
+  - librdmacm
+  - libibverbs
+  - libibumad
+  - librdmacm
+  - rdma-core
+  - ucx-rdmacm
+
+# comment out modules not needed (no such hw present in the system)
+rdma_config: /etc/rdma/modules/rdma.conf
+rdma_disable_kmod:
+  - 'ib_iser'
+  - 'ib_isert'
+  - 'ib_srpt'
+  - 'xprtrdma'
+  - 'svcrdma'
+  - 'rds_rdma'
+

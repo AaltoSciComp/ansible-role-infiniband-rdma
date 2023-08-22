@@ -1,0 +1,15 @@
+---
+
+  - name: Install various packages
+    ansible.builtin.dnf:
+      name: "{{ item }}"
+      state: present
+    loop: "{{ rdma_packages }}"
+
+  - name: "Comment out not needed RDMA modules"
+    replace:
+      path: "{{ rdma_config }}"
+      regexp: "^{{ item }}"
+      replace: "# {{ item }}"
+    loop: "{{ rdma_disable_kmod }}"
+
