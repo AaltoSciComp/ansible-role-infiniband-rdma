@@ -1,0 +1,5 @@
+---
+
+- name: restart opensm
+  service: name=opensm state=restarted
+  when: rdma_opensm_enabled | bool and rdma_opensm_state == "started"

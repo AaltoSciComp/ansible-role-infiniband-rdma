@@ -13,3 +13,25 @@
       replace: "# {{ item }}"
     loop: "{{ rdma_disable_kmod }}"
 
+  - name: Make sure opensm is installed if managed by ansible
+    package:
+      name: opensm
+      state: present
+    when: rdma_manage_opensm|bool
+
+  - name: Generate the OpenSM partition configuration file
+    template:
+      src: partitions.conf.j2
+      dest: /etc/rdma
+      owner: root
+      mode: 0644
+    when: rdma_manage_opensm|bool
+    notify: restart opensm
+
+  - name: Manage the opensm service
+    service:
+      name: opensm
+      state: "{{ rdma_opensm_state }}"
+      enabled: "{{ rdma_opensm_enabled }}"
+    when:
+      - rdma_manage_opensm|bool
