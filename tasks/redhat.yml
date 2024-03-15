@@ -22,11 +22,21 @@
   - name: Generate the OpenSM partition configuration file
     template:
       src: partitions.conf.j2
-      dest: /etc/rdma
+      dest: /etc/rdma/partitions.conf
       owner: root
       mode: 0644
     when: rdma_manage_opensm|bool
     notify: restart opensm
+
+  - name: Set cgoup limits for all users
+    ansible.builtin.lineinfile:
+      path: /etc/rdma/opensm.conf
+      regexp: "^{{ item.key }}"
+      line: "{{ item.key }} {{ item.value }}"
+    loop: "{{ rdma_opensm_conf | dict2items }}"
+    when: rdma_manage_opensm|bool
+    notify: restart opensm
+
 
   - name: Manage the opensm service
     service:

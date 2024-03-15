@@ -24,4 +24,8 @@ rdma_manage_opensm: false
 rdma_opensm_state: stopped
 rdma_opensm_enabled: false
 
+# optional array of partitions
 rdma_opensm_partlist: []
+
+# key value hash to override default values in the conf
+rdma_opensm_conf: {}
