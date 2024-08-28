@@ -9,6 +9,28 @@ rdma_packages:
   - rdma-core
   - ucx-rdmacm
 
+# mofed (obtained by running installer once and stripping the needed ones)
+mofed_packages:
+  - ibacm
+  - ibutils2
+  - infiniband-diags
+  - knem
+  - knem-modules
+  - libibumad
+  - libibverbs
+  - libibverbs-utils
+  - librdmacm
+  - librdmacm-utils
+  - mlnx-ethtool
+  - mlnx-fw-updater
+  - mlnx-iproute2
+  - mlnx-ofa_kernel
+  - mlnx-ofa_kernel-modules
+  - mlnx-tools
+  - ofed-scripts
+  - rdma-core
+  - sharp
+
 # comment out modules not needed (no such hw present in the system)
 rdma_config: /etc/rdma/modules/rdma.conf
 rdma_disable_kmod:
@@ -29,3 +51,6 @@ rdma_opensm_partlist: []
 
 # key value hash to override default values in the conf
 rdma_opensm_conf: {}
+
+# if using mofed, by defauls start ibd service after package installation
+openibd_restart: true

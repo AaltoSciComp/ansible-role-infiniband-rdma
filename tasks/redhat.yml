@@ -1,11 +1,40 @@
 ---
+# Tasks if setting up mofed from rpm repository
+  - name: Install RHEL-Ofed
+    block:
+    - name: Add needed dnf repository for mofed and lustre
+      ansible.builtin.yum_repository:
+        name: "{{mofed_repo.name}}"
+        description: "{{mofed_repo.description}}"
+        baseurl: "{{mofed_repo.baseurl}}"
+        gpgcheck: "{{mofed_repo.gpgcheck}}"
 
+    - name: Install various packages
+      ansible.builtin.dnf:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ mofed_packages }}"
+      register: mofed_packages_updated
+
+    - name: Restart openibd service
+      command: "/etc/init.d/openibd restart"
+      when: mofed_packages_updated.changed and openibd_restart|bool
+
+    - name: Add ib to boot initrd
+      command: "dracut -f"
+      when: mofed_packages_updated.changed
+
+    when: mofed | default(false)|bool
+
+# Tasks if using RHEL provided mofed
   - name: Install various packages
     ansible.builtin.dnf:
       name: "{{ item }}"
       state: present
     loop: "{{ rdma_packages }}"
+    when: not mofed | default(true)|bool
 
+# these are common tasks after proper version of ofed packages has been installed
   - name: "Comment out not needed RDMA modules"
     replace:
       path: "{{ rdma_config }}"
