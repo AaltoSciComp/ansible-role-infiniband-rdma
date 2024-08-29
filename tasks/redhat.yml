@@ -2,12 +2,29 @@
 # Tasks if setting up mofed from rpm repository
   - name: Install RHEL-Ofed
     block:
+    - name: Set kernel version to variable
+      set_fact:
+        defined_kernel: "{{ mofed_kernel | default('nil') }}"
+        running_kernel: "{{ ansible_kernel | default('nil') }}"
+
+    - name: Check if kernel is set for play
+      fail:
+        msg: "Neither mofed_kernel nor ansible_kernel is set."
+      when: defined_kernel == 'nil' and running_kernel == 'nil'
+
     - name: Add needed dnf repository for mofed and lustre
       ansible.builtin.yum_repository:
         name: "{{mofed_repo.name}}"
         description: "{{mofed_repo.description}}"
         baseurl: "{{mofed_repo.baseurl}}"
         gpgcheck: "{{mofed_repo.gpgcheck}}"
+
+    - name: Make sure RHEL ib is absent
+      ansible.builtin.dnf:
+        name: "{{ item }}"
+        state: absent
+        autoremove: yes
+      loop: "{{ rdma_packages }}"
 
     - name: Install various packages
       ansible.builtin.dnf:
@@ -20,8 +37,8 @@
       command: "/etc/init.d/openibd restart"
       when: mofed_packages_updated.changed and openibd_restart|bool
 
-    - name: Add ib to boot initrd
-      command: "dracut -f"
+    - name: Add ib to boot initrd with dracut
+      command: "dracut -f --kver {{ defined_kernel | default(running_kernel) }}"
       when: mofed_packages_updated.changed
 
     when: mofed | default(false)|bool
