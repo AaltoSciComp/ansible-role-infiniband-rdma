@@ -1,6 +1,6 @@
 ---
 # Tasks if setting up mofed from rpm repository
-  - name: Install RHEL-Ofed
+  - name: Install Mellanox-Ofed
     block:
     - name: Set kernel version to variable
       set_fact:
@@ -19,12 +19,14 @@
         baseurl: "{{mofed_repo.baseurl}}"
         gpgcheck: "{{mofed_repo.gpgcheck}}"
 
-    - name: Make sure RHEL ib is absent
-      ansible.builtin.dnf:
-        name: "{{ item }}"
-        state: absent
-        autoremove: yes
-      loop: "{{ rdma_packages }}"
+    # This will cause issues for indepotensy as names overlap between RHEL-ofed and mofed. 
+    # Original idea was to provide upgrade path from RHEL->Mofed. Removing this functionality.
+    #- name: Make sure RHEL ib is absent
+    #  ansible.builtin.dnf:
+    #    name: "{{ item }}"
+    #    state: absent
+    #    autoremove: yes
+    #  loop: "{{ rdma_packages }}"
 
     - name: Install various packages
       ansible.builtin.dnf:
